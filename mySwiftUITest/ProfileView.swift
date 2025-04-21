@@ -46,6 +46,7 @@ struct ProfileView: View {
                 }
                 .padding(.horizontal)
                 
+                //Adds the comment to the comments array — at the top (index 0), not the end.
                 Button(action: {
                     if !newComment.trimmingCharacters(in: .whitespaces).isEmpty {
                         comments.insert(newComment, at: 0)
