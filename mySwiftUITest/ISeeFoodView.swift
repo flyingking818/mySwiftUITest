@@ -9,10 +9,18 @@ import SwiftUI
 import CoreML
 import Vision
 
+/// A SwiftUI View that uses CoreML and Vision to classify food images using the MobileNetV2 model.
 struct ISeeFoodView: View {
+    /// Tracks whether the image picker sheet is visible.
     @State private var showImagePicker = false
+    
+    /// Stores the selected image from the photo picker.
     @State private var inputImage: UIImage?
+    
+    /// Text label that shows the classification result.
     @State private var classificationLabel: String = "Tap camera to select image"
+    
+    /// Changes background color based on classification result.
     @State private var navBarColor: Color = .blue
     
     var body: some View {
@@ -24,6 +32,7 @@ struct ISeeFoodView: View {
                 VStack(spacing: 20) {
                     Spacer()
                     
+                    // Display selected image
                     if let image = inputImage {
                         Image(uiImage: image)
                             .resizable()
@@ -32,6 +41,7 @@ struct ISeeFoodView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     
+                    // Display classification result
                     Text(classificationLabel)
                         .font(.headline)
                         .foregroundColor(.white)
@@ -43,6 +53,7 @@ struct ISeeFoodView: View {
             .navigationTitle("I See Food")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                // Camera button to trigger image picker
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         showImagePicker = true
@@ -55,7 +66,10 @@ struct ISeeFoodView: View {
                     }
                 }
             }
+            // Present the image picker as a modal sheet
+            // A modal sheet is a user interface element that slides up from the bottom of the screen and appears on top of the current view.
             .sheet(isPresented: $showImagePicker) {
+                //This tells SwiftUI to present a sheet when the showImagePicker state variable is true. The sheet will disappear automatically when showImagePicker is set to false.
                 ImagePicker(image: $inputImage, onImagePicked: { image in
                     classifyImage(image)
                 })
@@ -63,6 +77,8 @@ struct ISeeFoodView: View {
         }
     }
     
+    /// Classifies the selected image using MobileNetV2 CoreML model and updates the UI accordingly.
+    /// - Parameter image: A `UIImage` selected by the user.
     func classifyImage(_ image: UIImage) {
         guard let ciImage = CIImage(image: image) else {
             print("Unable to convert UIImage to CIImage")
@@ -70,35 +86,22 @@ struct ISeeFoodView: View {
         }
         
         /*
-         Inceptionv3
-         
-         Higher accuracy on some benchmarks.
-         Slower, but better for server-side or high-end offline analysis.
-         
-         
-         MobileNetV2
-         Slightly lower accuracy (~71% vs. ~78% on ImageNet).
-         Way more efficient for mobile and edge devices.
-         Designed for live interaction & camera input
-         
-         */
-        
-        
-        
         /* Use the older InceptionV3 model */
-        /*
-        guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else {
-            print("Failed to load CoreML model")
-            return
-        }
+         guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else {
+         print("Failed to load CoreML model")
+         return
+         }
          */
         
+       
+        // Load CoreML model (currently MobileNetV2)
         guard let model = try? VNCoreMLModel(for: MobileNetV2().model) else {
             print("Failed to load MobileNetV2 model")
             return
         }
-
+     
         
+        // Create a request to classify the image
         let request = VNCoreMLRequest(model: model) { request, error in
             guard let results = request.results as? [VNClassificationObservation],
                   let topResult = results.first else {
@@ -106,9 +109,8 @@ struct ISeeFoodView: View {
                 return
             }
             
-            print(results)
-            
             DispatchQueue.main.async {
+                // Example of hard-coded "Hotdog!" classification logic
                 if topResult.identifier.contains("hotdog") {
                     classificationLabel = "Hotdog!"
                     navBarColor = .green
@@ -119,8 +121,8 @@ struct ISeeFoodView: View {
             }
         }
         
+        // Perform the classification on a background thread
         let handler = VNImageRequestHandler(ciImage: ciImage)
-        
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try handler.perform([request])
