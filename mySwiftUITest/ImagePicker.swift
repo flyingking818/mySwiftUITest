@@ -57,8 +57,7 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
     
     /// Creates and configures the `UIImagePickerController` instance.
-    /// - Parameter context: A context provided by SwiftUI.
-    /// - Returns: A configured instance of `UIImagePickerController`.
+
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator       // Assign the coordinator as the delegate.

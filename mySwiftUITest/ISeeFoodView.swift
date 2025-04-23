@@ -78,28 +78,47 @@ struct ISeeFoodView: View {
     }
     
     /// Classifies the selected image using MobileNetV2 CoreML model and updates the UI accordingly.
-    /// - Parameter image: A `UIImage` selected by the user.
+    
+    /* CIImage is Core Image’s native format — ideal for:
+    Applying filters (e.g., grayscale, blur, contrast)
+    Cropping, resizing, color space management
+    Chain-processing multiple transformations efficiently
+    This makes it more precise and GPU-friendly than using raw UIImage data.
+     */
+    
+    
     func classifyImage(_ image: UIImage) {
         guard let ciImage = CIImage(image: image) else {
             print("Unable to convert UIImage to CIImage")
             return
         }
         
+        
+        
         /*
-        /* Use the older InceptionV3 model */
+         /* Use the older InceptionV3 model */
          guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else {
          print("Failed to load CoreML model")
          return
          }
          */
         
-       
-        // Load CoreML model (currently MobileNetV2)
+        // Load Resnet50 model
+        // https://github.com/ytakzk/CoreML-samples/blob/master/CoreML-samples/Resnet50.mlmodel
+        /*
+         guard let model = try? VNCoreMLModel(for: Resnet50().model) else {
+         print("Failed to load MobileNetV2 model")
+         return
+         }
+         */
+        
+        
+        // Load MobileNetV2
         guard let model = try? VNCoreMLModel(for: MobileNetV2().model) else {
             print("Failed to load MobileNetV2 model")
             return
         }
-     
+        
         
         // Create a request to classify the image
         let request = VNCoreMLRequest(model: model) { request, error in
