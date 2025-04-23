@@ -93,6 +93,19 @@ struct ISeeFoodView: View {
             return
         }
         
+        /*
+         Inceptionv3
+         
+         Higher accuracy on some benchmarks.
+         Slower, but better for server-side or high-end offline analysis.
+         
+         
+         MobileNetV2
+         Slightly lower accuracy (~71% vs. ~78% on ImageNet).
+         Way more efficient for mobile and edge devices.
+         Designed for live interaction & camera input
+         
+         */
         
         
         /*
